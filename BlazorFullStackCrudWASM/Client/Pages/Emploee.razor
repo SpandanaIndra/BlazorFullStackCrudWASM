@@ -1,0 +1,60 @@
+﻿@page "/allemployees"
+@using BlazorFullStackCrudWASM.Shared
+@inject HttpClient Http
+@inject IEmployeeService _service
+@inject NavigationManager navManager
+
+<PageTitle>Employees</PageTitle>
+
+<h1>All Employees</h1>
+
+
+
+
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>FirsrName</th>
+                <th>LastName</th>
+                <th>Department</th>
+                <th>Salary</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var emp in employees)
+            {
+                <tr>
+                    <td>@emp.Id</td>
+                    <td>@emp.FirstName</td>
+                    <td>@emp.LastName</td>
+                    <td>@emp.Department</td>
+                    <td>@emp.salary</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="(()=>ShowEmployee(emp.Id))"><i class="oi oi-pencil"></i></button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button class="btn btn-primary" @onclick="CreateEmployee">Add New Employee</button>
+
+@code {
+    private List<Employee> employees;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        employees = await _service.GetEmployees();
+    }
+    void ShowEmployee(int id)
+    {
+        navManager.NavigateTo($"employee/{id}");
+    }
+    void CreateEmployee()
+    {
+        navManager.NavigateTo("/employee");
+    }
+}

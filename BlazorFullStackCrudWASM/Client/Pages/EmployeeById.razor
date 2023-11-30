@@ -1,0 +1,113 @@
+﻿@page "/employee"
+@page "/employee/{id:int}"
+@using BlazorFullStackCrudWASM.Shared
+@inject IEmployeeService _service
+@inject NavigationManager navManager
+
+
+@if (Id == null)
+{
+    <PageTitle>create a new Employee</PageTitle>
+    <h3>Add New Employee here..!</h3>
+}
+else
+{
+    <PageTitle>Edit @employ.FirstName</PageTitle>
+    <h3>Edit @employ.FirstName..!</h3>
+}
+<EditForm Model="employ" OnSubmit="HandleSubmit">
+    <div>
+        <label for="firstname">FirstName</label>
+        <InputText id="firstname" @bind-Value="employ.FirstName" class="form-control"></InputText>
+    </div>
+    <div>
+        <label for="lastname">LastName</label>
+        <InputText id="lastname" @bind-Value="employ.LastName" class="form-control"></InputText>
+    </div>
+  
+    <div>
+        <label for="department">Department</label>
+        <InputText id="department" @bind-Value="employ.Department" class="form-control"></InputText>
+    </div>
+    <div>
+        <label for="salary">Salary</label>
+        <InputNumber id="salary" @bind-Value="employ.salary" class="form-control"></InputNumber>
+    </div>
+    <br />
+
+    <button type="submit" class="btn btn-primary">@btnText</button>
+    <button type="button" class="btn btn-danger" @onclick="DeleteEmploy">Delete Employee</button>
+    <br />
+    <br />
+    <a href="/allemployees">All Employees</a><br />
+    <span><h3 style="color:green">@resultText</h3></span>
+
+</EditForm>
+
+@code {
+    Employee employ = new Employee();
+    [Parameter]
+    public int Id { get; set; }
+    string btnText = string.Empty;
+    string resultText = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id == 0)
+        {
+            btnText = "Save New Employee";
+        }
+        else
+        {
+            btnText = "Update Employee";
+            employ = await _service.GetEmployeeById(Id);
+        }
+
+
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id <= 0)
+        {
+
+
+        }
+        else
+        {
+            employ = await _service.GetEmployeeById(Id);
+        }
+    }
+
+    async void HandleSubmit()
+    {
+        if (Id <= 0)
+        {
+            int result= await _service.InsertEmployee(employ);
+            if (result == 1)
+            {
+                resultText = "Employee Created Successfully";
+                navManager.NavigateTo("/allemployees");
+
+            }
+        }
+        else
+        {
+          int result=  await _service.UpdateEmployee(employ.Id,employ);
+            if (result == 1)
+            {
+                resultText = "Employee Updated Successfully";
+                navManager.NavigateTo("/allemployees");
+
+            }
+        }
+    }
+    async Task DeleteEmploy()
+    {
+       int result= await _service.DeleteEmployee(employ.Id);
+        if (result == 1)
+        {
+            resultText = "Employee Deleted Successfully";
+
+        }
+
+    }
+}
